@@ -331,17 +331,19 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "text!layouts
             iframe = tutorialView.querySelector( ".tutorial-iframe" ),
             closeButton = tutorialView.querySelector( ".tutorial-close-button" ),
             viewTitle = tutorialView.querySelector( ".tutorial-view-title" ),
-            tutorialList = tutorialTemplate.querySelector( ".tutorial-list" );
+            tutorialList = document.querySelector( ".tutorial-list" ),
+            tutorialContainer = document.querySelector( ".butter-tutorial-container" );
 
         if ( err || !results.length) {
           return;
         }
 
-        _tutorialButtonContainer.appendChild( tutorialTemplate );
+        tutorialList.classList.remove( "hidden" );
 
         var onCoverMouseUp = function() {
           iframeCover.style.display = "none";
           tutorialView.addEventListener( "mousedown", onCoverMouseDown, false );
+          document.removeEventListener( "mouseup", onCoverMouseUp, false );
         };
 
         var onCoverMouseDown = function() {
@@ -361,7 +363,7 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "text!layouts
             tutorialView.style.width = "";
           }, false );
           tutorialElement.innerHTML = item.title;
-          tutorialList.appendChild( tutorialElement );
+          tutorialContainer.appendChild( tutorialElement );
         };
 
         tutorialView.addEventListener( "mousedown", onCoverMouseDown, false );
