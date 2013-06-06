@@ -416,8 +416,7 @@ app.get( '/external/make-api.js', function( req, res ) {
 
 app.get( '/api/butterconfig', function( req, res ) {
   res.json({
-    "makeEndpoint": config.MAKE_ENDPOINT,
-    "audience": config.AUDIENCE
+    "makeEndpoint": config.MAKE_ENDPOINT
   });
 });
 

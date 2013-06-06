@@ -10,8 +10,8 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "text!layouts
 
     var _this = this,
         _rootElement = Lang.domFragment( HEADER_TEMPLATE, ".butter-header" ),
-        _bodyWrapper = document.querySelector(".body-wrapper"),
-        _tutorialButtonContainer = _rootElement.querySelector( ".butter-tutorial-container" ),
+        _bodyWrapper = document.querySelector( ".body-wrapper" ),
+        _tutorialButtonContainer = document.querySelector( ".butter-tutorial-container" ),
         _saveButton = _rootElement.querySelector( ".butter-save-btn" ),
         _projectTitle = _rootElement.querySelector( ".butter-project-title" ),
         _projectName = _projectTitle.querySelector( ".butter-project-name" ),
@@ -81,7 +81,6 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "text!layouts
           butter.project.save(function( e ) {
             if ( e.error === "okay" ) {
               afterSave();
-              return;
             } else {
               toggleSaveButton( true );
               togglePreviewButton( false );
@@ -210,7 +209,7 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "text!layouts
       },
       logout: function() {
         togglePreviewButton( false );
-        toggleSaveButton( true );
+        toggleSaveButton( false );
         toggleProjectButton( false );
         toggleProjectNameListeners( false );
       }
