@@ -403,6 +403,7 @@ define( [ "core/eventmanager", "core/media", "util/sanitizer" ],
 
       // Save to db, then publish
       butter.cornfield.save( _id, projectData, function( e ) {
+        var pathName;
         if ( e.error === "okay" ) {
           // Since we've now fully saved, blow away autosave backup
           _isDirty = false;
@@ -432,6 +433,13 @@ define( [ "core/eventmanager", "core/media", "util/sanitizer" ],
 
             // Let consumers know that the project is now saved;
             _this.dispatch( "projectsaved" );
+
+            // Only pushState if the url has changed.
+            // This way pushing the back btton doesn't go through a bunch of repeat urls.
+            pathName = "/editor/" + _id + "/edit";
+            if ( window.history.pushState && pathName !== window.location.pathname ) {
+              window.history.pushState({}, "", pathName );
+            }
 
             callback( e );
           });
