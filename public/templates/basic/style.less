@@ -55,6 +55,15 @@ body.editor-minimized .body-wrapper {
   right: 0;
 }
 
+.show-loading {
+  .loading-message {
+    opacity: 1;
+    // this zindex puts it above all track events
+    z-index: 1000;
+    visibility: visible;
+  }
+}
+
 .loading-message {
   position: absolute;
 
@@ -69,14 +78,8 @@ body.editor-minimized .body-wrapper {
   height: 100%;
   top: 0;
   line-height: 1;
-
+/* now that I see this I question it also check if old projects get the fixes*/
   &.show-global,
-  &.show-media {
-    opacity: 1;
-    // this zindex puts it above all track events
-    z-index: 1000;
-    visibility: visible;
-  }
   &.show-waiting {
     opacity: 1;
     background: rgba( 0,0,0,1 );
