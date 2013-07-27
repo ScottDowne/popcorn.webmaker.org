@@ -329,16 +329,19 @@
         fd = new FormData();
         fd.append( "image", file );
 
-        XHR.put( "/api/image", fd, function( data ) {
-          if ( !data.error ) {
-            if ( trackEvent ) {
-              trackEvent.update( { src: data.url } );
-            }
 
-            butter.dispatch( "droppable-succeeded", data.url );
-          } else {
-            butter.dispatch( "droppable-upload-failed", data.error );
-          }
+        require( [ "util/xhr" ], function( XHR ) {
+          XHR.put( "/api/image", fd, function( data ) {
+            if ( !data.error ) {
+              if ( trackEvent ) {
+                trackEvent.update( { src: data.url } );
+              }
+
+              butter.dispatch( "droppable-succeeded", data.url );
+            } else {
+              butter.dispatch( "droppable-upload-failed", data.error );
+            }
+          });
         });
 
         if ( trackEvent ) {
