@@ -75,7 +75,6 @@
       };
       options.hideLoading = function() {
         _this.off( "play", options._surpressPlayEvent );
-
         if ( _waiting === 0 || --_waiting === 0 ) {
           document.querySelector( ".embed" ).classList.remove( "show-loading" );
         }
@@ -226,7 +225,23 @@
           if ( buffered.start( i ) <= options._clip.currentTime() &&
                buffered.end( i ) > options._clip.currentTime() ) {
             // We found a valid range so playing can resume.
-            options.playIfReady();
+            if ( _waiting ) {
+              if ( options.playWhenReady ) {
+                options._clip.on( "pause", options._clipPauseEvent );
+                _this.on( "pause", options._pauseEvent );
+                options.playWhenReady = false;
+                if ( _waiting === 1 ) {
+                  options.hideLoading();
+                  _this.play();
+                }
+              } else {
+                //if ( _waiting === 1 ) {
+                  options.hideLoading();
+                //}
+                options._clip.on( "play", options._clipPlayEvent );
+                _this.on( "play", options._playEvent );
+              }
+            }
             return;
           }
         }
@@ -237,6 +252,11 @@
           options.playWhenReady = true;
           _this.pause();
         }
+        options._clip.off( "play", options._clipPlayEvent );
+        options._clip.off( "pause", options._clipPauseEvent );
+        options._clip.off( "play", options._clipPlayEventSwitch );
+        options._clip.off( "pause", options._clipPauseEventSwitch );
+        options.displayLoading();
       };
 
       // Ensures seek time is seekable, and not already seeked.
