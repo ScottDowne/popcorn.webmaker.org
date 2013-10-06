@@ -94,6 +94,7 @@
         if ( !options.waiting ) {
           options.waiting = true;
           _waiting++;
+
           document.querySelector( ".embed" ).setAttribute( "data-state-waiting", true );
           document.querySelector( ".embed" ).classList.add( "show-loading" );
         }
@@ -208,6 +209,7 @@
         _this.off( "play", options._playEvent );
         _this.off( "pause", options._pauseEvent );
         _this.off( "seeked", options._onSeeked );
+        _this.off( "timeupdate", options._onTimeUpdate );
       };
 
       options.addSource = function() {
@@ -242,34 +244,52 @@
         }
       };
 
-      options._onProgress = function() {
+      options._isBuffering = function() {
         var i, l,
-            buffered = options._clip.media.buffered;
-
-        // We're likely in a wrapper that does not support buffered.
-        // Assume we are buffered.
-        // Once these wrappers have a buffered time range object, it should just work.
-        if ( buffered.length === 0 || options._clip.ended() ) {
-          return;
-        }
+            buffered = options._clip.media.buffered,
+            time = _this.currentTime() - options.start + (+options.from);
 
         for ( i = 0, l = buffered.length; i < l; i++ ) {
           // Check if a range is valid, if so, return early.
-          if ( buffered.start( i ) <= options._clip.currentTime() &&
-               buffered.end( i ) > options._clip.currentTime() ) {
+          if ( buffered.start( i ) <= time &&
+               buffered.end( i ) > time ) {
             // We found a valid range so playing can resume.
-            options.playIfReady();
-            options.hideLoading();
-            return;
+            return false;
           }
+        }
+        return true;
+      };
+
+      options._onProgress = function() {
+        var buffered = options._clip.media.buffered;
+
+        if ( options._clip.ended() ) {
+          return;
+        }
+
+        if ( !options._isBuffering() ) {
+          // We found a valid range so playing can resume.
+          options.hideLoading();
+          options.playIfReady();
+          options._clip.off( "progress", options._onProgress );
+          return;
+        }
+      };
+
+      options._onTimeUpdate = function() {
+
+        if ( options._clip.ended() ) {
+          return;
         }
 
         // If we hit here, we failed to find a valid range,
         // so we should probably stop everything. We'll get out of sync.
-        if ( !_this.paused() ) {
+        if ( options._isBuffering() && !_this.paused() ) {
           options.playWhenReady = true;
           _this.pause();
           options.displayLoading();
+          // Wait for a valid progress event.
+          options._clip.on( "progress", options._onProgress );
         }
       };
 
@@ -311,9 +331,15 @@
         options._clip.off( "play", options._playedEvent );
         options._clip.off( "ended", options._playedEvent );
         _this.on( "seeked", options._onSeeked );
-        // Setup on progress after initial load.
-        // This way if an initial load never happens, we never pause.
-        options._clip.on( "progress", options._onProgress );
+
+        // Ensure this wrapper supports buffered.
+        // Once these wrappers have a buffered time range object, it should just work.
+        if ( options._clip.media.buffered.length !== 0 ) {
+          _this.on( "timeupdate", options._onTimeUpdate );
+          // Setup on progress after initial load.
+          // This way if an initial load never happens, we never pause.
+          options._clip.on( "progress", options._onProgress );
+        }
         if ( !options.playIfReady() ) {
           options._clip.pause();
           options._clip.on( "play", options._clipPlayEvent );
