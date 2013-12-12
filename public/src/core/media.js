@@ -254,11 +254,11 @@
       }; //removeTrack
 
       this.cleanUpEmptyTracks = function() {
-        var oldTracks = _tracks.slice();
-        for( var i = oldTracks.length - 1; i >= 0; --i ) {
-          if ( oldTracks[ i ].trackEvents.length === 0 && _tracks.length > 1 ) {
-            _this.removeTrack( oldTracks[ i ] );
-          }
+        while ( _orderedTracks.length && _orderedTracks[ 0 ].trackEvents.length === 0 ) {
+          _this.removeTrack( _orderedTracks[ 0 ] );
+        }
+        while ( _orderedTracks.length && _orderedTracks[ _orderedTracks.length - 1 ].trackEvents.length === 0 ) {
+          _this.removeTrack( _orderedTracks[ _orderedTracks.length - 1 ] );
         }
       };
 
